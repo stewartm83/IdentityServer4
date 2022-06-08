@@ -27,15 +27,15 @@ namespace IdentityServer.UnitTests.ResponseHandling
 {
     public class DeviceAuthorizationResponseGeneratorTests
     {
-        private readonly List<IdentityResource> identityResources = new List<IdentityResource> {new IdentityResources.OpenId(), new IdentityResources.Profile()};
-        private readonly List<ApiResource> apiResources = new List<ApiResource> { new ApiResource("resource") { Scopes = {"api1" } } };
+        private readonly List<IdentityResource> identityResources = new List<IdentityResource> { new IdentityResources.OpenId(), new IdentityResources.Profile() };
+        private readonly List<ApiResource> apiResources = new List<ApiResource> { new ApiResource("resource") { Scopes = { "api1" } } };
         private readonly List<ApiScope> scopes = new List<ApiScope> { new ApiScope("api1") };
 
         private readonly FakeUserCodeGenerator fakeUserCodeGenerator = new FakeUserCodeGenerator();
         private readonly IDeviceFlowCodeService deviceFlowCodeService = new DefaultDeviceFlowCodeService(new InMemoryDeviceFlowStore(), new StubHandleGenerationService());
         private readonly IdentityServerOptions options = new IdentityServerOptions();
         private readonly StubClock clock = new StubClock();
-        
+
         private readonly DeviceAuthorizationResponseGenerator generator;
         private readonly DeviceAuthorizationRequestValidationResult testResult;
         private const string TestBaseUrl = "http://localhost:5000/";
@@ -44,39 +44,41 @@ namespace IdentityServer.UnitTests.ResponseHandling
         {
             testResult = new DeviceAuthorizationRequestValidationResult(new ValidatedDeviceAuthorizationRequest
             {
-                Client = new Client {ClientId = Guid.NewGuid().ToString()},
+                Client = new Client { ClientId = Guid.NewGuid().ToString() },
                 IsOpenIdRequest = true,
                 ValidatedResources = new ResourceValidationResult()
             });
 
             generator = new DeviceAuthorizationResponseGenerator(
                 options,
-                new DefaultUserCodeService(new IUserCodeGenerator[] {new NumericUserCodeGenerator(), fakeUserCodeGenerator }),
+                new DefaultUserCodeService(new IUserCodeGenerator[] { new NumericUserCodeGenerator(), fakeUserCodeGenerator }),
                 deviceFlowCodeService,
                 clock,
                 new NullLogger<DeviceAuthorizationResponseGenerator>());
         }
 
         [Fact]
-        public void ProcessAsync_when_valiationresult_null_exect_exception()
+        public async Task ProcessAsync_when_valiationresult_null_exect_exception()
         {
             Func<Task> act = () => generator.ProcessAsync(null, TestBaseUrl);
-            act.Should().Throw<ArgumentNullException>();
+            await act.Should().ThrowAsync<ArgumentNullException>();
         }
 
         [Fact]
-        public void ProcessAsync_when_valiationresult_client_null_exect_exception()
+        public async Task ProcessAsync_when_valiationresult_client_null_exect_exception()
         {
             var validationResult = new DeviceAuthorizationRequestValidationResult(new ValidatedDeviceAuthorizationRequest());
-            Func <Task> act = () => generator.ProcessAsync(validationResult, TestBaseUrl);
-            act.Should().Throw<ArgumentNullException>();
+            Func<Task> act = () => generator.ProcessAsync(validationResult, TestBaseUrl);
+
+            await act.Should().ThrowAsync<ArgumentNullException>();
         }
 
         [Fact]
-        public void ProcessAsync_when_baseurl_null_exect_exception()
+        public async Task ProcessAsync_when_baseurl_null_exect_exception()
         {
             Func<Task> act = () => generator.ProcessAsync(testResult, null);
-            act.Should().Throw<ArgumentException>();
+
+            await act.Should().ThrowAsync<ArgumentException>();
         }
 
         [Fact]
@@ -114,9 +116,9 @@ namespace IdentityServer.UnitTests.ResponseHandling
 
             testResult.ValidatedRequest.RequestedScopes = new List<string> { "openid", "api1" };
             testResult.ValidatedRequest.ValidatedResources = new ResourceValidationResult(new Resources(
-                identityResources.Where(x=>x.Name == "openid"), 
-                apiResources.Where(x=>x.Name == "resource"), 
-                scopes.Where(x=>x.Name == "api1")));
+                identityResources.Where(x => x.Name == "openid"),
+                apiResources.Where(x => x.Name == "resource"),
+                scopes.Where(x => x.Name == "api1")));
 
             var response = await generator.ProcessAsync(testResult, TestBaseUrl);
 
@@ -143,7 +145,7 @@ namespace IdentityServer.UnitTests.ResponseHandling
 
             response.DeviceCode.Should().NotBeNullOrWhiteSpace();
             response.Interval.Should().Be(options.DeviceFlow.Interval);
-            
+
             var deviceCode = await deviceFlowCodeService.FindByDeviceCodeAsync(response.DeviceCode);
             deviceCode.Should().NotBeNull();
             deviceCode.ClientId.Should().Be(testResult.ValidatedRequest.Client.ClientId);
@@ -152,7 +154,7 @@ namespace IdentityServer.UnitTests.ResponseHandling
             deviceCode.CreationTime.Should().Be(creationTime);
             deviceCode.Subject.Should().BeNull();
             deviceCode.AuthorizedScopes.Should().BeNull();
-            
+
             response.DeviceCodeLifetime.Should().Be(deviceCode.Lifetime);
         }
 
@@ -188,27 +190,27 @@ namespace IdentityServer.UnitTests.ResponseHandling
         public const string UserCodeTypeValue = "Collider";
         public const string TestUniqueUserCode = "123";
         public const string TestCollisionUserCode = "321";
-        private int tryCount = 0;
-        private int retryLimit = 2;
+        private int _tryCount = 0;
+        private int _retryLimit = 2;
 
 
         public string UserCodeType => UserCodeTypeValue;
 
         public int RetryLimit
         {
-            get => retryLimit;
-            set => retryLimit = value;
+            get => _retryLimit;
+            set => _retryLimit = value;
         }
 
         public Task<string> GenerateAsync()
         {
-            if (tryCount == 0)
+            if (_tryCount == 0)
             {
-                tryCount++;
+                _tryCount++;
                 return Task.FromResult(TestCollisionUserCode);
             }
 
-            tryCount++;
+            _tryCount++;
             return Task.FromResult(TestUniqueUserCode);
         }
     }

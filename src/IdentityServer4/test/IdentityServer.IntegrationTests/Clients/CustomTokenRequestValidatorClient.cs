@@ -124,7 +124,7 @@ namespace IdentityServer.IntegrationTests.Clients
 
         private Dictionary<string, object> GetFields(TokenResponse response)
         {
-            return response.Json.ToObject<Dictionary<string, object>>();
+            return System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(response.Json);
         }
     }
 }

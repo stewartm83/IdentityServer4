@@ -119,7 +119,7 @@ namespace IdentityServer.UnitTests.ResponseHandling
         {
             _identityResources.Add(new IdentityResource("id1", new[] { "foo" }));
             _identityResources.Add(new IdentityResource("id2", new[] { "bar" }));
-            
+
             var address = new
             {
                 street_address = "One Hacker Way",
@@ -127,7 +127,7 @@ namespace IdentityServer.UnitTests.ResponseHandling
                 postal_code = 69118,
                 country = "Germany"
             };
-            
+
             _mockProfileService.ProfileClaims = new[]
             {
                 new Claim("email", "fred@gmail.com"),
@@ -157,11 +157,11 @@ namespace IdentityServer.UnitTests.ResponseHandling
             claims["email"].Should().Be("fred@gmail.com");
             claims.Should().ContainKey("name");
             claims["name"].Should().Be("fred jones");
-            
+
             // this will be treated as a string because this is not valid JSON from the System.Text library point of view
             claims.Should().ContainKey("address");
             claims["address"].Should().Be("{ 'street_address': 'One Hacker Way', 'locality': 'Heidelberg', 'postal_code': 69118, 'country': 'Germany' }");
-            
+
             // this is a JsonElement
             claims.Should().ContainKey("address2");
             claims["address2"].ToString().Should().Be("{\"street_address\":\"One Hacker Way\",\"locality\":\"Heidelberg\",\"postal_code\":69118,\"country\":\"Germany\"}");
@@ -195,7 +195,7 @@ namespace IdentityServer.UnitTests.ResponseHandling
         }
 
         [Fact]
-        public void ProcessAsync_should_throw_if_incorrect_sub_issued_by_profile_service()
+        public async Task ProcessAsync_should_throw_if_incorrect_sub_issued_by_profile_service()
         {
             _identityResources.Add(new IdentityResource("id1", new[] { "foo" }));
             _identityResources.Add(new IdentityResource("id2", new[] { "bar" }));
@@ -221,8 +221,7 @@ namespace IdentityServer.UnitTests.ResponseHandling
 
             Func<Task> act = () => _subject.ProcessAsync(result);
 
-            act.Should().Throw<InvalidOperationException>()
-                .And.Message.Should().Contain("subject");
+            await act.Should().ThrowAsync<InvalidOperationException>();
         }
 
     }
