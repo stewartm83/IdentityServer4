@@ -185,7 +185,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
+            var values = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(introspectionResponse.Json);
 
             values["aud"].GetType().Name.Should().Be("String");
             values["iss"].GetType().Name.Should().Be("String");
@@ -224,7 +224,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
+            var values = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(introspectionResponse.Json);
+
 
             values["aud"].GetType().Name.Should().Be("String");
             values["iss"].GetType().Name.Should().Be("String");
@@ -263,7 +264,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
+            var values = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(introspectionResponse.Json);
 
             values["aud"].GetType().Name.Should().Be("JArray");
 
@@ -308,7 +309,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Introspection
                 Token = tokenResponse.AccessToken
             });
 
-            var values = introspectionResponse.Json.ToObject<Dictionary<string, object>>();
+            var values = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(introspectionResponse.Json);
 
             values["aud"].GetType().Name.Should().Be("String");
             values["iss"].GetType().Name.Should().Be("String"); 
