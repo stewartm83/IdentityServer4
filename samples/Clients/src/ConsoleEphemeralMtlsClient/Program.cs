@@ -33,14 +33,9 @@ namespace ConsoleEphemeralMtlsClient
             var disco = await client.GetDiscoveryDocumentAsync(Constants.AuthorityMtls);
             if (disco.IsError) throw new Exception(disco.Error);
 
-            var endpoint = disco
-                .TryGetValue(OidcConstants.Discovery.MtlsEndpointAliases)
-                .Value<string>(OidcConstants.Discovery.TokenEndpoint)
-                .ToString();
-            
             var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
-                Address = endpoint,
+                Address = disco.MtlsEndpointAliases.TokenEndpoint,
 
                 ClientId = "client",
                 ClientSecret = "secret",

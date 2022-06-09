@@ -1,14 +1,15 @@
 <Project>
 
     <PropertyGroup>
-        <AspNetVersion>3.1.5</AspNetVersion>
+        <AspNetVersion>6.0.5</AspNetVersion>
+        <IdentityServerVersion>4.1.3-*</IdentityServerVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Update="IdentityModel" Version="4.3.0" />
-        <PackageReference Update="IdentityServer4" Version="4.0.0" />
-        <PackageReference Update="IdentityServer4.EntityFramework" Version="4.0.0" />
-        <PackageReference Update="IdentityServer4.AspNetIdentity" Version="4.0.0" />
+        <PackageReference Update="IdentityModel" Version="6.0.0" />
+        <PackageReference Update="IdentityServer4" Version="$(IdentityServerVersion)" />
+        <PackageReference Update="IdentityServer4.EntityFramework" Version="$(IdentityServerVersion)" />
+        <PackageReference Update="IdentityServer4.AspNetIdentity" Version="$(IdentityServerVersion)" />
 
         <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(AspNetVersion)" />
         <PackageReference Update="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(AspNetVersion)" />
@@ -16,7 +17,7 @@
         <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(AspNetVersion)" />
         <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="$(AspNetVersion)" />
 
-        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
+        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="[6.10.0,6.19)" />
 
         <PackageReference Update="Serilog.AspNetCore" Version="3.2.0" />
     </ItemGroup>
